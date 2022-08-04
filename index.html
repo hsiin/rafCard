@@ -1,7 +1,12 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script src="https://accounts.google.com/gsi/client" onload="initClient()" async defer></script>
+    <script
+      src="https://accounts.google.com/gsi/client"
+      onload="initClient()"
+      async
+      defer
+    ></script>
   </head>
   <body>
     <script>
@@ -10,9 +15,11 @@
 
       function initClient() {
         client = google.accounts.oauth2.initTokenClient({
-          client_id: '54833322065-aarjvg5vn322p4gk1hs3b4pbd2tbd4p3.apps.googleusercontent.com',
-          scope: 'https://www.googleapis.com/auth/calendar.readonly \
-                  https://www.googleapis.com/auth/contacts.readonly',
+          client_id:
+            "54833322065-aarjvg5vn322p4gk1hs3b4pbd2tbd4p3.apps.googleusercontent.com",
+          scope:
+            "https://www.googleapis.com/auth/calendar.readonly \
+                  https://www.googleapis.com/auth/contacts.readonly",
           callback: (tokenResponse) => {
             access_token = tokenResponse.access_token;
           },
@@ -22,18 +29,56 @@
         client.requestAccessToken();
       }
       function revokeToken() {
-        google.accounts.oauth2.revoke(access_token, () => {console.log('access token revoked')});
+        google.accounts.oauth2.revoke(access_token, () => {
+          console.log("access token revoked");
+        });
       }
       function loadCalendar() {
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', 'https://www.googleapis.com/calendar/v3/calendars/primary/events');
-        xhr.setRequestHeader('Authorization', 'Bearer ' + access_token);
-        xhr.send();
+        gapi.client.people.people
+          .createContact({
+            resource: {
+              names: [
+                {
+                  givenName: "hassine",
+                  familyName: "Bennet",
+                },
+              ],
+              phoneNumbers: [
+                {
+                  type: "home",
+                  value: "(206)555-1212",
+                },
+                {
+                  type: "cell",
+                  value: "(206)555-1213",
+                },
+              ],
+              addresses: [
+                {
+                  type: "home",
+                  streetAddress: "1600 Amphitheatre Pkwy",
+                  postalCode: "94043",
+                  country: "United States",
+                  city: "Mountain View",
+                  region: "California",
+                },
+              ],
+            },
+          })
+          .then(
+            function (response) {
+              // Handle the results here (response.result has the parsed body).
+              console.log("Response", response);
+            },
+            function (err) {
+              console.error("Execute error", err);
+            }
+          );
       }
     </script>
     <h1>Google Identity Services Authorization Token model</h1>
-    <button onclick="getToken();">Get access token</button><br><br>
-    <button onclick="loadCalendar();">Load Calendar</button><br><br>
+    <button onclick="getToken();">Get access token</button><br /><br />
+    <button onclick="loadCalendar();">Load Calendar</button><br /><br />
     <button onclick="revokeToken();">Revoke token</button>
   </body>
 </html>
