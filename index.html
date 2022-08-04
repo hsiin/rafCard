@@ -1,113 +1,151 @@
 <!DOCTYPE html>
 <html>
-<head></head>
-<body>
-  <h1>GAPI with GIS async/await</h1>
-  <button id="showEventsBtn" onclick="showEvents();">Show Calendar</button><br><br>
-  <button id="revokeBtn" onclick="revokeToken();">Revoke access token</button>
+  <head>
+    <title>People API Quickstart</title>
+    <meta charset="utf-8" />
+  </head>
+  <body>
+    <p>People API Quickstart</p>
 
-  <script>
+    <!--Add buttons to initiate auth sequence and sign out-->
+    <button id="authorize_button" style="display: none;">Authorize</button>
+    <button id="signout_button" style="display: none;">Sign Out</button>
+    <button id="contact_button" style="display: none;">Create Contact</button>
 
-    const gapiLoadPromise = new Promise((resolve, reject) => {
-      gapiLoadOkay = resolve;
-      gapiLoadFail = reject;
-    });
-    const gisLoadPromise = new Promise((resolve, reject) => {
-      gisLoadOkay = resolve;
-      gisLoadFail = reject;
-    });
+    <pre id="content" style="white-space: pre-wrap;"></pre>
 
-    var tokenClient;
+    <script type="text/javascript">
+      // Client ID and API key from the Developer Console
+      var CLIENT_ID = '54833322065-aarjvg5vn322p4gk1hs3b4pbd2tbd4p3.apps.googleusercontent.com';
+      var API_KEY = 'AIzaSyD9I1cGwCDjWUm35QO0qnb0O4JlNc9whsU';
 
-    (async () => {
-      document.getElementById("showEventsBtn").style.visibility="hidden";
-      document.getElementById("revokeBtn").style.visibility="hidden";
+      // Array of API discovery doc URLs for APIs used by the quickstart
+      var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/people/v1/rest"];
 
-      // First, load and initialize the gapi.client
-      await gapiLoadPromise;
-      await new Promise((resolve, reject) => {
-        // NOTE: the 'auth2' module is no longer loaded.
-        gapi.load('client', {callback: resolve, onerror: reject});
-      });
-      await gapi.client.init({
-        // NOTE: OAuth2 'scope' and 'client_id' parameters have moved to initTokenClient().
-      })
-      .then(function() {  // Load the Calendar API discovery document.
-        gapi.client.load('https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest');
-      });
+      // Authorization scopes required by the API; multiple scopes can be
+      // included, separated by spaces.
+      var SCOPES = "https://www.googleapis.com/auth/contacts";
 
-      // Now load the GIS client
-      await gisLoadPromise;
-      await new Promise((resolve, reject) => {
-        try {
-          tokenClient = google.accounts.oauth2.initTokenClient({
-              client_id: '54833322065-aarjvg5vn322p4gk1hs3b4pbd2tbd4p3.apps.googleusercontent.com',
-              scope: 'https://www.googleapis.com/auth/calendar.readonly',
-              prompt: 'consent',
-              callback: '',  // defined at request time in await/promise scope.
-          });
-          resolve();
-        } catch (err) {
-          reject(err);
-        }
-      });
+      var authorizeButton = document.getElementById('authorize_button');
+      var signoutButton = document.getElementById('signout_button');
+      var contactButton = document.getElementById('contact_button');
 
-      document.getElementById("showEventsBtn").style.visibility="visible";
-      document.getElementById("revokeBtn").style.visibility="visible";
-    })();
+      /**
+       *  On load, called to load the auth2 library and API client library.
+       */
+      function handleClientLoad() {
+        gapi.load('client:auth2', initClient);
+      }
 
-    async function getToken(err) {
+      /**
+       *  Initializes the API client library and sets up sign-in state
+       *  listeners.
+       */
+      function initClient() {
+        gapi.client.init({
+          apiKey: API_KEY,
+          clientId: CLIENT_ID,
+          discoveryDocs: DISCOVERY_DOCS,
+          scope: SCOPES
+        }).then(function () {
+          // Listen for sign-in state changes.
+          gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
 
-      if (err.result.error.code == 401 || (err.result.error.code == 403) &&
-          (err.result.error.status == "PERMISSION_DENIED")) {
-
-        // The access token is missing, invalid, or expired, prompt for user consent to obtain one.
-        await new Promise((resolve, reject) => {
-          try {
-            // Settle this promise in the response callback for requestAccessToken()
-            tokenClient.callback = (resp) => {
-              if (resp.error !== undefined) {
-                reject(resp);
-              }
-              // GIS has automatically updated gapi.client with the newly issued access token.
-              console.log('gapi.client access token: ' + JSON.stringify(gapi.client.getToken()));
-              resolve(resp);
-            };
-            tokenClient.requestAccessToken();
-          } catch (err) {
-            console.log(err)
-          }
+          // Handle the initial sign-in state.
+          updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+          authorizeButton.onclick = handleAuthClick;
+          signoutButton.onclick = handleSignoutClick;
+          contactButton.onclick = handleContactClick;
+        }, function(error) {
+          appendPre(JSON.stringify(error, null, 2));
         });
-      } else {
-        // Errors unrelated to authorization: server errors, exceeding quota, bad requests, and so on.
-        throw new Error(err);
       }
-    }
 
-    function showEvents() {
-
-      // Try to fetch a list of Calendar events. If a valid access token is needed,
-      // prompt to obtain one and then retry the original request.
-      gapi.client.calendar.events.list({ 'calendarId': 'primary' })
-      .then(calendarAPIResponse => console.log(JSON.stringify(calendarAPIResponse)))
-      .catch(err  => getToken(err))  // for authorization errors obtain an access token
-      .then(retry => gapi.client.calendar.events.list({ 'calendarId': 'primary' }))
-      .then(calendarAPIResponse => console.log(JSON.stringify(calendarAPIResponse)))
-      .catch(err  => console.log(err));   // cancelled by user, timeout, etc.
-    }
-
-    function revokeToken() {
-      let cred = gapi.client.getToken();
-      if (cred !== null) {
-        google.accounts.oauth2.revoke(cred.access_token, () => {console.log('Revoked: ' + cred.access_token)});
-        gapi.client.setToken('');
+      /**
+       *  Called when the signed in status changes, to update the UI
+       *  appropriately. After a sign-in, the API is called.
+       */
+      function updateSigninStatus(isSignedIn) {
+        if (isSignedIn) {
+          authorizeButton.style.display = 'none';
+          signoutButton.style.display = 'block';
+          contactButton.style.display = 'block';
+        } else {
+          authorizeButton.style.display = 'block';
+          signoutButton.style.display = 'none';
+        }
       }
-    }
 
-  </script>
+      /**
+       *  Sign in the user upon button click.
+       */
+      function handleAuthClick(event) {
+        gapi.auth2.getAuthInstance().signIn();
+      }
 
-  <script async defer src="https://apis.google.com/js/api.js" onload="gapiLoadOkay()" onerror="gapiLoadFail(event)"></script>
-  <script async defer src="https://accounts.google.com/gsi/client" onload="gisLoadOkay()" onerror="gisLoadFail(event)"></script>
+      /**
+       *  Sign out the user upon button click.
+       */
+      function handleSignoutClick(event) {
+        gapi.auth2.getAuthInstance().signOut();
+      }
+      
+      /**
+       *  Create a contact upon button click.
+       */
+      function handleContactClick() {
+        gapi.client.people.people.createContact({
+          "resource": {
+            "names": [
+              {
+                "givenName": "hassine",
+                "familyName": "bb"
+              }
+            ],
+            "phoneNumbers": [
+              {
+                "type": "home",
+                "value": "(206)555-1212"
+              },
+              {
+                "type": "cell",
+                "value": "(206)555-1213"
+              }
+            ],
+            "addresses": [
+              {
+                "type": "home",
+                "streetAddress": "1600 Amphitheatre Pkwy",
+                "postalCode": "94043",
+                "country": "United States",
+                "city": "Mountain View",
+                "region": "California"
+              }
+            ]
+          }
+        }).then(function(response) {
+                // Handle the results here (response.result has the parsed body).
+                console.log("Response", response);
+              },
+              function(err) { console.error("Execute error", err); });
+      }
+      
+      /**
+       * Append a pre element to the body containing the given message
+       * as its text node. Used to display the results of the API call.
+       *
+       * @param {string} message Text to be placed in pre element.
+       */
+      function appendPre(message) {
+        var pre = document.getElementById('content');
+        var textContent = document.createTextNode(message + '\n');
+        pre.appendChild(textContent);
+      }
+    </script>
 
-</body>
+    <script async defer src="https://apis.google.com/js/api.js"
+      onload="this.onload=function(){};handleClientLoad()"
+      onreadystatechange="if (this.readyState === 'complete') this.onload()">
+    </script>
+  </body>
 </html>
