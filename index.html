@@ -49,10 +49,10 @@
           scope: SCOPES
         }).then(function () {
           // Listen for sign-in state changes.
-          gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+          gapi.auth2.init().isSignedIn.listen(updateSigninStatus);
 
           // Handle the initial sign-in state.
-          updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+          updateSigninStatus(gapi.auth2.init().isSignedIn.get());
           authorizeButton.onclick = handleAuthClick;
           signoutButton.onclick = handleSignoutClick;
           contactButton.onclick = handleContactClick;
@@ -80,14 +80,14 @@
        *  Sign in the user upon button click.
        */
       function handleAuthClick(event) {
-        gapi.auth2.getAuthInstance().signIn();
+        gapi.auth2.init().signIn();
       }
 
       /**
        *  Sign out the user upon button click.
        */
       function handleSignoutClick(event) {
-        gapi.auth2.getAuthInstance().signOut();
+        gapi.auth2.init().signOut();
       }
 
       /**
@@ -143,7 +143,7 @@
       }
     </script>
 
-    <script async defer src="https://apis.google.com/js/api.js"
+    <script async defer src="https://accounts.google.com/gsi/client"
       onload="this.onload=function(){};handleClientLoad()"
       onreadystatechange="if (this.readyState === 'complete') this.onload()">
     </script>
