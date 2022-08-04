@@ -1,0 +1,299 @@
+body {
+    margin: 0;
+}
+
+/* width */
+::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.cover {
+    height: 238px;
+    width: 100%;
+    background: transparent url(img/BV-01@2x.png) no-repeat;
+    background-size: 100% 100%;
+    display: flex;
+    justify-content: flex-end;
+    padding: 87px 4vw 0 0;
+    box-sizing: border-box;
+    position: relative;
+}
+
+.cover .logo {
+    display: flex;
+    justify-content: center;
+
+}
+
+.cover .logo svg {
+    width: 16vw;
+    max-width: 270px;
+}
+
+.cover .blc-photo {
+    background: #fc3032 0 0 no-repeat padding-box;
+    width: 38%;
+    height: 75px;
+    position: absolute;
+    bottom: -21px;
+    left: 0;
+}
+
+.cover .blc-photo .content-abs {
+    position: relative;
+    height: 100%;
+    width: 100%;
+}
+
+.cover .blc-photo .content-abs:after {
+    content: "";
+    width: 324px;
+    height: 75px;
+    display: block;
+    background-color: #fc3032;
+    right: -324px;
+    position: absolute;
+    border-radius: 0 25px 0 0;
+}
+
+.cover .blc-photo .content-abs .imgProfil {
+    width: 169px;
+    height: 169px;
+    background: url(img/rafael-img.png) no-repeat;
+    background-size: 100% 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+}
+
+.blc-btns {
+    margin: 104px 0 0;
+    grid-gap: 24px;
+    width: 38%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.blc-btns button {
+    cursor: pointer;
+    width: 183.16px;
+    height: 45px;
+    font-size: 14px;
+    text-align: center;
+    font-family: "Roboto", serif;
+    font-weight: bold;
+}
+
+.blc-btns button.fixBtn {
+    border: 1px solid #2966ff;
+    background-color: #2966ff;
+    color: #ffffff;
+}
+
+.blc-btns button.fixBtn:hover {
+    background-color: #fff;
+    color: #212121;
+}
+
+.blc-btns button.downloadBtn {
+    background-color: #ffffff;
+    color: #212121;
+    border: 1px solid #2966ff;
+
+}
+
+.blc-btns button.downloadBtn:hover {
+    background-color: #2966ff;
+    color: #ffffff;
+}
+
+.description {
+    width: 62%;
+    box-sizing: border-box;
+    right: 0;
+    top: 208px;
+    border-radius: 40px 0 0 0;
+    padding: 21px 0 10px 50px;
+    background-color: #fff;
+    position: absolute;
+}
+
+
+.description .blc-btns {
+    display: none;
+}
+
+.description h1 {
+    color: #212121;
+    font-family: "Roboto", serif;
+    font-weight: bolder;
+    font-size: 25px;
+    line-height: 33px;
+    margin: 0;
+}
+
+.description p {
+    font-family: "Roboto", serif;
+    font-size: 18px;
+    line-height: 24px;
+    color: #676d6e;
+    font-weight: bold;
+    margin: 0 0 24px;
+}
+
+.description .row {
+    display: flex;
+    grid-gap: 12px;
+    margin: 0 0 18px;
+}
+
+.description .row:last-child {
+    margin: 0;
+}
+
+.description .row .column a {
+    font-family: "Roboto", serif;
+    color: #212121;
+    font-size: 16px;
+    line-height: 21px;
+    font-weight: 500;
+}
+
+.description .row .column .icn {
+    width: 26px;
+    height: 26px;
+}
+
+.description .row .column .icn img {
+    width: 100%;
+    height: 100%;
+}
+
+
+.textAdress {
+    width: 147px;
+}
+
+
+@media screen and (max-width: 767px) {
+    .cover {
+        height: 39.733vw;
+        padding: 8.533vw 6.666vw 0 0;
+    }
+
+    .cover .logo {
+        display: block;
+    }
+
+    .cover .logo svg {
+        width: 19.277vw;
+        height: 3.416vw;
+    }
+
+    .cover .blc-photo {
+        width: 88vw;
+        height: 12vw;
+        border-radius: 0 6.666vw 0 0;
+        bottom: -8vw;
+    }
+
+    .cover .blc-photo .content-abs {
+        position: relative;
+        width: 100vw;
+    }
+
+    .cover .blc-photo .content-abs:after {
+        display: none;
+    }
+
+    .cover .blc-photo .content-abs .imgProfil {
+        width: 27.866vw;
+        height: 27.866vw;
+        bottom: 7.9vw;
+    }
+
+    .blc-btns {
+        display: none;
+    }
+
+    .description {
+        padding:0 0 4.533vw;
+        width: 100%;
+        top: 47.733vw;
+        border-radius: 0;
+
+    }
+
+
+    .description:after {
+        content: "";
+        display: block;
+        position: absolute;
+        border-radius: 10.666vw 0 0 0;
+        width: 92vw;
+        height: 8vw;
+        background: #fff;
+        top: -8vw;
+        right: 0;
+    }
+
+    .description .content-description {
+        max-width: 190px;
+        margin: 0 auto;
+    }
+
+    .description h1 {
+        font-size: 20px;
+        line-height: 26px;
+    }
+
+    .description p {
+        font-size: 16px;
+        line-height: 21px;
+        margin: 0 0 24px;
+    }
+
+    .textAdress {
+        width: 100%;
+    }
+
+    .description .row {
+        grid-gap: 12px;
+        margin: 0 0 18px;
+    }
+
+    .description .row .column a {
+        font-size: 16px;
+        line-height: 21px;
+    }
+
+    .description .row .column .icn {
+        width: 26px;
+        height: 26px;
+    }
+    .description .row .column .icn svg{
+        width: 100%;
+        height: 100%;
+    }
+    .description .blc-btns {
+        display: flex;
+        grid-gap: 15px;
+        width: 183px;
+        margin: 0 auto;
+    }
+
+    .description .blc-btns button {
+        font-size: 14px;
+        width: 100%;
+        height: 45px;
+    }
+}
